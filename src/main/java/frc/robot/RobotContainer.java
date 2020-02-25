@@ -10,7 +10,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.VictorSP_NavX_DriveTrain;
 import frc.robot.commands.Auto_MoveFwd_1meter;
 import frc.robot.commands.Auto_Move_S_curve;
 
@@ -22,7 +22,7 @@ import frc.robot.commands.Auto_Move_S_curve;
  */
 public class RobotContainer {
 
-  DriveTrain m_drvTrain;
+  VictorSP_NavX_DriveTrain m_drvTrain;
   Auto_MoveFwd_1meter m_autoCommand;
 
 
@@ -30,7 +30,7 @@ public class RobotContainer {
    * The container for the robot.  Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    m_drvTrain = new DriveTrain();
+    m_drvTrain = new VictorSP_NavX_DriveTrain("ADXRS450");
     m_autoCommand = new Auto_MoveFwd_1meter(m_drvTrain);
     // m_autoCommand = new Auto_Move_S_curve(m_drvTrain);
     // Configure the button bindings

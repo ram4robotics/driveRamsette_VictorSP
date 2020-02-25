@@ -14,6 +14,7 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.Constants.DriveConstants;
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.SpeedController;
@@ -22,10 +23,11 @@ import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 
-public class DriveTrain extends SubsystemBase {
+public class VictorSP_NavX_DriveTrain extends SubsystemBase {
   private final SpeedController m_leftmotors, m_rightmotors;
   private final DifferentialDrive m_dDrive;
 
@@ -36,12 +38,13 @@ public class DriveTrain extends SubsystemBase {
   private final DifferentialDriveOdometry m_odometry;
 
   Supplier<Double> gyroAngleRadians;
-  AHRS m_navx;
+  private final AHRS m_navx; // Initialized if using NavX
+  private final Gyro m_adxrs450_gyro; // Initialized if using ADXRS450
 
   /**
    * Creates a new DriveTrain.
    */
-  public DriveTrain() {
+  public VictorSP_NavX_DriveTrain(String gyroToUse) {
     m_leftmotors = new SpeedControllerGroup(new VictorSP(DriveConstants.kLeftMotor1Port), 
       new VictorSP(DriveConstants.kLeftMotor2Port));
     m_rightmotors = new SpeedControllerGroup(new VictorSP(DriveConstants.kRightMotor1Port), 
@@ -67,10 +70,20 @@ public class DriveTrain extends SubsystemBase {
     // Configure gyro
     //
 
-    // Note that the angle from the NavX and all implementors of wpilib Gyro
-    // must be negated because getAngle returns a clockwise positive angle
-    m_navx = new AHRS(SPI.Port.kMXP);
-    gyroAngleRadians = () -> -1 * Math.toRadians(m_navx.getAngle());
+    if (gyroToUse != null && gyroToUse.equalsIgnoreCase("NavX")) {
+      // Note that the angle from the NavX and all implementors of wpilib Gyro
+      // must be negated because getAngle returns a clockwise positive angle
+      m_navx = new AHRS(SPI.Port.kMXP);
+      gyroAngleRadians = () -> -1 * Math.toRadians(m_navx.getAngle());
+      m_adxrs450_gyro = null;
+    } else if (gyroToUse != null && gyroToUse.equalsIgnoreCase("ADXRS450")) {
+      m_adxrs450_gyro = new ADXRS450_Gyro();
+      gyroAngleRadians = () -> -1 * Math.toRadians(m_adxrs450_gyro.getAngle());
+      m_navx = null;
+    } else {
+      m_navx = null;
+      m_adxrs450_gyro = null;
+    }
 
     // Let's name the sensors on the LiveWindow
     addChild("Drive", m_dDrive);
@@ -178,7 +191,11 @@ public class DriveTrain extends SubsystemBase {
    * Zeroes the heading of the robot.
    */
   public void zeroHeading() {
-    m_navx.reset();
+    if (m_navx != null) {
+      m_navx.reset();
+    } else if (m_adxrs450_gyro != null) {
+      m_adxrs450_gyro.reset();
+    }
   }
 
   /**
@@ -187,7 +204,13 @@ public class DriveTrain extends SubsystemBase {
    * @return the robot's heading in degrees, from 180 to 180
    */
   public double getHeading() {
-    return Math.IEEEremainder(m_navx.getAngle(), 360) * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
+    if (m_navx != null) {
+      return Math.IEEEremainder(m_navx.getAngle(), 360) * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
+    } else if (m_adxrs450_gyro != null) {
+      return Math.IEEEremainder(m_adxrs450_gyro.getAngle(), 360) * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
+    } else {
+      return (0.0);
+    }
   }
 
   /**
@@ -204,7 +227,12 @@ public class DriveTrain extends SubsystemBase {
    * @return The turn rate of the robot, in degrees per second
    */
   public double getTurnRate() {
-    return m_navx.getRate() * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
+    if (m_navx != null) {
+      return m_navx.getRate() * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
+    } else if (m_adxrs450_gyro != null) {
+      return m_adxrs450_gyro.getRate() * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
+    } else {
+      return (0.0);
+    }
   }
-
 }

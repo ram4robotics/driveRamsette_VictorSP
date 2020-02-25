@@ -24,14 +24,14 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.VictorSP_NavX_DriveTrain;
 
 public class Auto_Move_S_curve extends CommandBase {
-  private DriveTrain m_drvTrain;
+  private VictorSP_NavX_DriveTrain m_drvTrain;
   /**
    * Creates a new Auto_MoveFwd_1meter.
    */
-  public Auto_Move_S_curve(DriveTrain drvTrain) {
+  public Auto_Move_S_curve(VictorSP_NavX_DriveTrain drvTrain) {
     m_drvTrain = drvTrain;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drvTrain);
