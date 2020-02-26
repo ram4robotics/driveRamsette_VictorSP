@@ -85,10 +85,10 @@ public class Auto_MoveFwd_1meter extends CommandBase {
         // Go 1 meter forward and another 1 meter forward
         List.of(
             new Translation2d(0.5, 0),
-            new Translation2d(1.0, 0)
+            new Translation2d(0.75, 0)
         ),
         // End 3 meters straight ahead of where we started, facing forward
-        new Pose2d(1.5, 0, new Rotation2d(0)),
+        new Pose2d(1.0, 0, new Rotation2d(0)),
         // Pass config
         config
     );

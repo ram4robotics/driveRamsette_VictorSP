@@ -10,7 +10,9 @@ package frc.robot;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.subsystems.VictorSP_NavX_DriveTrain;
+import frc.robot.Constants.OIConstants;
 import frc.robot.commands.Auto_MoveFwd_1meter;
 import frc.robot.commands.Auto_Move_S_curve;
 
@@ -22,19 +24,26 @@ import frc.robot.commands.Auto_Move_S_curve;
  */
 public class RobotContainer {
 
-  VictorSP_NavX_DriveTrain m_drvTrain;
+  VictorSP_NavX_DriveTrain m_robotDrive;
   Auto_MoveFwd_1meter m_autoCommand;
+  XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
+  XboxController m_otherController = new XboxController(OIConstants.kOtherControllerPort);
 
 
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    m_drvTrain = new VictorSP_NavX_DriveTrain("ADXRS450");
-    m_autoCommand = new Auto_MoveFwd_1meter(m_drvTrain);
-    // m_autoCommand = new Auto_Move_S_curve(m_drvTrain);
+    m_robotDrive = new VictorSP_NavX_DriveTrain("ADXRS450");
+    m_autoCommand = new Auto_MoveFwd_1meter(m_robotDrive);
+    // m_autoCommand = new Auto_Move_S_curve(m_robotDrive);
     // Configure the button bindings
     configureButtonBindings();
+
+    m_robotDrive.setDefaultCommand(
+    new RunCommand(() -> m_robotDrive
+      .arcadeDrive(m_driverController.getY(GenericHID.Hand.kLeft),
+        m_driverController.getX(GenericHID.Hand.kRight)), m_robotDrive));
   }
 
   /**
